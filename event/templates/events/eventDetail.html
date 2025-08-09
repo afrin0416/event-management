@@ -1,0 +1,39 @@
+{% extends 'events/base.html' %} {% load static %} {% block title %}Event
+Detail{% endblock %} {% block content %}
+<div class="max-w-3xl mx-auto mt-10 bg-white p-8 rounded shadow">
+  <h2 class="text-3xl font-bold mb-4 text-blue-700">{{ event.name }}</h2>
+
+  <div class="mb-6 space-y-2">
+    <p><strong>Description:</strong> {{ event.description }}</p>
+    <p><strong>Date:</strong> {{ event.date }}</p>
+    <p><strong>Time:</strong> {{ event.time }}</p>
+    <p><strong>Location:</strong> {{ event.location }}</p>
+    <p><strong>Category:</strong> {{ event.category.name }}</p>
+  </div>
+
+  <hr class="my-6" />
+
+  <h3 class="text-2xl font-semibold mb-4">
+    Participants ({{ event.participants.count }})
+  </h3>
+
+  {% if event.participants.exists %}
+  <ul class="list-disc pl-5 space-y-1">
+    {% for participant in event.participants.all %}
+    <li>
+      <span class="font-medium">{{ participant.name }}</span> -
+      <a
+        href="mailto:{{ participant.email }}"
+        class="text-blue-600 hover:underline"
+        >{{ participant.email }}</a
+      >
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-gray-500">
+    No participants have registered for this event yet.
+  </p>
+  {% endif %}
+</div>
+{% endblock %}

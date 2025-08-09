@@ -1,0 +1,19 @@
+<!-- templates/participants/participant_confirm_delete.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Delete Participant</title>
+</head>
+<body>
+    <h1>Delete Participant</h1>
+
+    <p>Are you sure you want to delete <strong>{{ participant.name }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, Delete</button>
+        <a href="{% url 'participant_list' %}">Cancel</a>
+    </form>
+</body>
+</html>
