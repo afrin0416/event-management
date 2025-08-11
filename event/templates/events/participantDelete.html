@@ -1,19 +1,20 @@
-<!-- templates/participants/participant_confirm_delete.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Delete Participant</title>
-</head>
-<body>
-    <h1>Delete Participant</h1>
+{% extends 'events/base.html' %}
+{% block title %}Delete Participant{% endblock %}
 
-    <p>Are you sure you want to delete <strong>{{ participant.name }}</strong>?</p>
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 mt-10 shadow rounded text-center">
+    <h2 class="text-xl font-semibold text-red-600 mb-4">Delete Participant</h2>
 
-    <form method="post">
+    <p class="mb-6">Are you sure you want to delete <strong>{{ participant.name }}</strong>?</p>
+
+    <form method="post" class="flex justify-center space-x-4">
         {% csrf_token %}
-        <button type="submit">Yes, Delete</button>
-        <a href="{% url 'participant_list' %}">Cancel</a>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+            Yes, Delete
+        </button>
+        <a href="{% url 'participant_list' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">
+            Cancel
+        </a>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}

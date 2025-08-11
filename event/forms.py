@@ -1,5 +1,5 @@
 from django import forms
-from .models import event, Category, Participant
+from .models import Event, Category, Participant
 
 # Tailwind Styling Mixin
 
@@ -42,7 +42,7 @@ class StyledFormMixin:
 
 class EventForm(StyledFormMixin, forms.ModelForm):
     class Meta:
-        model = event
+        model = Event
         fields = '__all__'
         widgets = {
             'date': forms.SelectDateWidget,

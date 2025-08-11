@@ -12,7 +12,7 @@ class Category(models.Model):
         return self.name
 
 
-class event(models.Model):
+class Event(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
     date = models.DateField()
@@ -27,7 +27,7 @@ class event(models.Model):
 class Participant(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
-    events = models.ManyToManyField(event, related_name='participants')
+    events = models.ManyToManyField(Event, related_name='participants')
 
     def __str__(self):
         return self.name

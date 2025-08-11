@@ -1,37 +1,39 @@
+{% extends 'events/base.html' %}
+{% block title %}Participants List{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>Participants List</title>
-</head>
-<body>
-    <h1>Participants</h1>
-    <a href="{% url 'participant_create' %}">Add New Participant</a>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
+{% block content %}
+<div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold">Participants</h2>
+    <a href="{% url 'participant_create' %}" class="bg-indigo-600 text-white px-4 py-2 text-sm rounded hover:bg-indigo-700">
+        + Add Participant
+    </a>
+</div>
+
+{% if participants %}
+<div class="overflow-x-auto bg-white shadow rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-indigo-100 text-indigo-700">
             <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Actions</th>
+                <th class="px-4 py-2 text-left">Name</th>
+                <th class="px-4 py-2 text-left">Email</th>
+                <th class="px-4 py-2 text-left">Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-gray-100">
             {% for participant in participants %}
             <tr>
-                <td>{{ participant.name }}</td>
-                <td>{{ participant.email }}</td>
-                <td>
-                    <a href="{% url 'participant_update' participant.pk %}">Edit</a> |
-                    <a href="{% url 'participant_delete' participant.pk %}">Delete</a>
+                <td class="px-4 py-2">{{ participant.name }}</td>
+                <td class="px-4 py-2">{{ participant.email }}</td>
+                <td class="px-4 py-2 space-x-2">
+                    <a href="{% url 'participant_update' participant.pk %}" class="text-blue-600 hover:underline">Edit</a>
+                    <a href="{% url 'participant_delete' participant.pk %}" class="text-red-600 hover:underline">Delete</a>
                 </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3">No participants found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-</body>
-</html>
+</div>
+{% else %}
+    <p class="text-gray-600 mt-4">No participants found.</p>
+{% endif %}
+{% endblock %}

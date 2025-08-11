@@ -16,8 +16,7 @@ urlpatterns = [
          views.category_delete, name='category_delete'),
 
     path('participants/', views.participant_list, name='participant_list'),
-    path('participants/create/', views.participant_create,
-         name='participant_create'),
+    path('participants/create/', views.participant_create,name='participant_create'),
     path('participants/update/<int:participant_id>/',
          views.participant_update, name='participant_update'),
     path('participants/delete/<int:participant_id>/',

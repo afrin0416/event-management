@@ -1,19 +1,38 @@
+{% extends 'events/base.html' %}
+{% block title %}
+  {% if form.instance.pk %}Update{% else %}Create{% endif %} Participant
+{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>{% if form.instance.pk %}Update{% else %}Create{% endif %} Participant</title>
-</head>
-<body>
-    <h1>{% if form.instance.pk %}Update{% else %}Create{% endif %} Participant</h1>
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 mt-10 shadow rounded">
+  <h2 class="text-xl font-bold text-center text-indigo-600 mb-4">
+    {% if form.instance.pk %}Update{% else %}Create{% endif %} Participant
+  </h2>
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
     
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">{% if form.instance.pk %}Update{% else %}Create{% endif %}</button>
-    </form>
+    {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+          {{ field.label }}
+        </label>
+        {{ field }}
+        {% if field.errors %}
+          <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
 
-    <a href="{% url 'participant_list' %}">Back to Participants List</a>
-</body>
-</html>
+    <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">
+      {% if form.instance.pk %}Update{% else %}Create{% endif %}
+    </button>
+  </form>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'participant_list' %}" class="text-sm text-gray-500 hover:text-indigo-600 underline">
+      ← Back to Participants
+    </a>
+  </div>
+</div>
+{% endblock %}

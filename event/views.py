@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import event, Participant, Category
+from .models import Event, Participant, Category
 from django.db.models import Q, Count
 from django.utils.dateparse import parse_date
 from django.utils import timezone
@@ -18,7 +18,7 @@ def event_list(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    events = event.objects.select_related(
+    events = Event.objects.select_related(
         'category').prefetch_related('participants')
 
     # Filter by search query (name or location)
@@ -168,13 +168,13 @@ def category_delete(request, category_id):
 
 
 def organizer_dashboard(request):
-    total_events = event.objects.count()
+    total_events = Event.objects.count()
     total_participants = Participant.objects.count()
     now = timezone.now().date()
 
-    upcoming_events = event.objects.filter(date__gt=now).count()
-    past_events = event.objects.filter(date__lt=now).count()
-    today_events = event.objects.filter(date=now)
+    upcoming_events = Event.objects.filter(date__gt=now).count()
+    past_events = Event.objects.filter(date__lt=now).count()
+    today_events = Event.objects.filter(date=now)
 
     context = {
         'total_events': total_events,
