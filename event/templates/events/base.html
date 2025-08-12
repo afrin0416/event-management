@@ -25,13 +25,17 @@
         <a
           href="{% url 'category_list' %}"
           class="text-gray-700 hover:text-blue-500"
-          >Categories</a
-        >
+          >Categories
+         </a>
         <a
           href="{% url 'dashboard' %}"
           class="text-gray-700 hover:text-blue-500"
-          >Dashboard</a
-        >
+          >Dashboard
+        </a>
+        <a href="{% url 'event_create' %}"
+         class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+          + Add Event
+        </a>
       </div>
     </nav>
 

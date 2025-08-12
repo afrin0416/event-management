@@ -1,5 +1,7 @@
-{% extends 'events/base.html' %} {% load static %} {% block title %}Event Form{%
-endblock %} {% block content %}
+{% extends 'events/base.html' %}
+{% load static %}
+{% block title %}Event Form{% endblock %}
+{% block content %}
 <div class="max-w-2xl mx-auto mt-10 bg-white p-8 rounded shadow">
   <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">
     {% if form.instance.pk %}Update Event{% else %}Create Event{% endif %}

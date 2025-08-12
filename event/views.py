@@ -123,7 +123,7 @@ def participant_update(request, participant_id):
 def participant_delete(request, participant_id):
     participant = Participant.objects.get(id=participant_id)
     participant.delete()
-    return redirect('participantList')
+    return redirect('participant_list')
 
 
 # Category Views
