@@ -1,7 +1,7 @@
 from django import forms
 from .models import Event, Category, Participant
 
-# Tailwind Styling Mixin
+
 
 
 class StyledFormMixin:

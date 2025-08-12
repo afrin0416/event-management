@@ -21,7 +21,7 @@ def event_list(request):
     events = Event.objects.select_related(
         'category').prefetch_related('participants')
 
-    # Filter by search query (name or location)
+    # Search by name or location
     if search_query:
         events = events.filter(
             Q(name__icontains=search_query) |
@@ -32,13 +32,13 @@ def event_list(request):
     if category_id:
         events = events.filter(category_id=category_id)
 
-    # Filter by date range
+    # Date range
     if start_date:
         events = events.filter(date__gte=parse_date(start_date))
     if end_date:
         events = events.filter(date__lte=parse_date(end_date))
 
-    # Count all participants across all events
+    
     total_participants = Participant.objects.count()
 
     # Get all categories for the dropdown
