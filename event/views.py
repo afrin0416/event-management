@@ -101,7 +101,7 @@ def participant_create(request):
         form = ParticipantForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('participantList')
+            return redirect('participant_list')
     else:
         form = ParticipantForm()
     return render(request, 'events/participantForm.html', {'form': form})
@@ -114,7 +114,7 @@ def participant_update(request, participant_id):
         form = ParticipantForm(request.POST, instance=participant)
         if form.is_valid():
             form.save()
-            return redirect('participantList')
+            return redirect('participant-list')
     else:
         form = ParticipantForm(instance=participant)
     return render(request, 'events/participantForm.html', {'form': form})
