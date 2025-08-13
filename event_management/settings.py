@@ -23,12 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-k1j653&1u-!fa^e)ny!kq4b*932lqz2w9-y@v&g!!9gnttfq^*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ["https://event-management-06r0.onrender.com"
-                        ,'http://127.0.0.1:8000']
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://event-management-06r0.onrender.com", 'http://127.0.0.1:8000']
 
 
 # Application definition
@@ -76,7 +75,7 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# 
+#
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
