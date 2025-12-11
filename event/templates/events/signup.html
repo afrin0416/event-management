@@ -1,0 +1,89 @@
+{% extends 'events/base.html' %}
+{% load static %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<!-- Center wrapper -->
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md bg-white p-8 rounded shadow-md">
+        <h2 class="text-3xl font-bold mb-6 text-blue-700 text-center">Create Account</h2>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <!-- First Name -->
+            <div>
+                <label class="block text-gray-700">First Name</label>
+                <input type="text" name="first_name"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900"
+                    value="{{ form.first_name.value|default:'' }}">
+                {% if form.first_name.errors %}
+                <p class="text-red-500 text-sm">{{ form.first_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Last Name -->
+            <div>
+                <label class="block text-gray-700">Last Name</label>
+                <input type="text" name="last_name"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900"
+                    value="{{ form.last_name.value|default:'' }}">
+                {% if form.last_name.errors %}
+                <p class="text-red-500 text-sm">{{ form.last_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Username -->
+            <div>
+                <label class="block text-gray-700">Username</label>
+                <input type="text" name="username"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-yellow-100 text-blue-700"
+                    value="{{ form.username.value|default:'' }}">
+                {% if form.username.errors %}
+                <p class="text-red-500 text-sm">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label class="block text-gray-700">Email</label>
+                <input type="email" name="email"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900"
+                    value="{{ form.email.value|default:'' }}">
+                {% if form.email.errors %}
+                <p class="text-red-500 text-sm">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label class="block text-gray-700">Password</label>
+                <input type="password" name="password1"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900">
+                {% if form.password1.errors %}
+                <p class="text-red-500 text-sm">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                <label class="block text-gray-700">Confirm Password</label>
+                <input type="password" name="password2"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900">
+                {% if form.password2.errors %}
+                <p class="text-red-500 text-sm">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Sign Up
+            </button>
+        </form>
+
+        <p class="mt-4 text-center text-gray-600">
+            Already have an account? <a href="{% url 'login' %}" class="text-blue-600 hover:underline">Login</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

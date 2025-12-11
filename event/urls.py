@@ -16,9 +16,25 @@ urlpatterns = [
          views.category_delete, name='category_delete'),
 
     path('participants/', views.participant_list, name='participant_list'),
-    path('participants/create/', views.participant_create,name='participant_create'),
+    path('participants/create/', views.participant_create,
+         name='participant_create'),
     path('participants/update/<int:participant_id>/',
          views.participant_update, name='participant_update'),
     path('participants/delete/<int:participant_id>/',
          views.participant_delete, name='participant_delete'),
+
+    path('signup/', views.signup_view, name='signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    # Admin role URLs
+    path('groups/', views.group_list, name='group_list'),
+    path('groups/create/', views.group_create, name='group_create'),
+    path('groups/delete/<int:group_id>/',
+         views.group_delete, name='group_delete'),
+
+    path('users/delete/<int:user_id>/', views.user_delete, name='user_delete'),
+    path('users/change_role/<int:user_id>/',
+         views.change_role, name='change_role'),
+
+
 ]
