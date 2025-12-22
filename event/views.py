@@ -10,19 +10,18 @@ from django.contrib import messages
 
 from .models import Event, Participant, Category
 from .forms import EventForm, ParticipantForm, CategoryForm, CustomUserCreationForm, CreateGroupForm
-from .decorators import group_required, admin_only, organizer_only
-
-
-# -----------------------
-# Home / Index
-# -----------------------
-def index(request):
-    return render(request, 'events/base.html')
+from .decorators import group_required, admin_only
+from .decorators import organizer_only
 
 
 # -----------------------
 # Event Views
 # -----------------------
+
+def index(request):
+    return render(request, 'base.html')
+
+
 def event_list(request):
     search_query = request.GET.get('q', '')
     category_id = request.GET.get('category')
@@ -87,13 +86,13 @@ def event_update(request, event_id):
 def event_delete(request, event_id):
     event = Event.objects.get(id=event_id)
     event.delete()
-    messages.success(request, "Event deleted.")
     return redirect('event_list')
 
 
 # -----------------------
 # Participant Views
 # -----------------------
+
 def participant_list(request):
     participants = Participant.objects.all()
     return render(request, 'events/participantList.html', {'participants': participants})
@@ -131,13 +130,13 @@ def participant_update(request, participant_id):
 def participant_delete(request, participant_id):
     participant = Participant.objects.get(id=participant_id)
     participant.delete()
-    messages.success(request, "Participant deleted.")
     return redirect('participant_list')
 
 
 # -----------------------
 # Category Views
 # -----------------------
+
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'events/categoryList.html', {'categories': categories})
@@ -175,13 +174,13 @@ def category_update(request, category_id):
 def category_delete(request, category_id):
     category = Category.objects.get(id=category_id)
     category.delete()
-    messages.success(request, "Category deleted.")
     return redirect('category_list')
 
 
 # -----------------------
 # Dashboard
 # -----------------------
+
 @login_required
 @group_required('Organizer', 'Admin')
 def organizer_dashboard(request):
@@ -205,6 +204,7 @@ def organizer_dashboard(request):
 # -----------------------
 # Authentication Views
 # -----------------------
+
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -241,6 +241,7 @@ def logout_view(request):
 # -----------------------
 # Group & Role Management (Admin only)
 # -----------------------
+
 @login_required
 @admin_only
 def group_create(request):
@@ -313,14 +314,24 @@ def assign_role(request, user_id):
 @admin_only
 def user_list(request):
     users = User.objects.all()
-    return render(request, 'events/user_list.html', {'users': users})
+    return render(request, 'admin/user_list.html', {'users': users})
 
 
-# -----------------------
-# Organizer-only event management
-# -----------------------
+
 @login_required
 @organizer_only
 def create_event(request):
+    event_list = Event.objects.all()
+    return render(request, 'events/create_event.html', {'events': event_list})
+    
+@login_required
+@organizer_only
+def delete_event(request, id):
+    event = Event.objects.get(id=id)
+    event.delete()
+    messages.success(request, "Event deleted.")
+    return redirect('eventList')
+@login_required
+def event_list(request):
     events = Event.objects.all()
-    return render(request, 'events/create_event.html', {'events': events})
+    return render(request, 'events/eventList.html', {'events': events})
