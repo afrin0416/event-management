@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+    <h2 class="text-2xl font-bold mb-4">User Groups</h2>
+
+    <!-- Add New Group (Admin Only) -->
+    {% if request.user.groups.filter(name='Admin').exists %}
+        <a href="{% url 'create_group' %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4 inline-block">
+            Create New Group
+        </a>
+    {% endif %}
+
+    <table class="min-w-full bg-white shadow-md rounded">
+        <thead>
+            <tr>
+                <th class="py-2 px-4 border-b">ID</th>
+                <th class="py-2 px-4 border-b">Group Name</th>
+                {% if request.user.groups.filter(name='Admin').exists %}
+                    <th class="py-2 px-4 border-b">Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+            <tr class="hover:bg-gray-100">
+                <td class="py-2 px-4 border-b">{{ group.id }}</td>
+                <td class="py-2 px-4 border-b">{{ group.name }}</td>
+                {% if request.user.groups.filter(name='Admin').exists %}
+                    <td class="py-2 px-4 border-b">
+                        <a href="{% url 'edit_group' group.id %}" class="text-blue-500 hover:underline">Edit</a> |
+                        <a href="{% url 'delete_group' group.id %}" class="text-red-500 hover:underline">Delete</a>
+                    </td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="py-2 px-4 text-center text-gray-500">No groups found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

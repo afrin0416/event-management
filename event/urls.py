@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from event import views
 
+
 urlpatterns = [
     path('', views.event_list, name='event_list'),
     path('events/<int:event_id>/', views.event_detail, name='event_detail'),
@@ -35,6 +36,13 @@ urlpatterns = [
     path('users/delete/<int:user_id>/', views.user_delete, name='user_delete'),
     path('users/change_role/<int:user_id>/',
          views.change_role, name='change_role'),
+
+
+
+    path('events/', views.event_list, name='event_list'),
+    path('events/create/', views.create_event, name='create_event'),
+    path('admin/users/', views.user_list, name='user_list'),
+
 
 
 ]

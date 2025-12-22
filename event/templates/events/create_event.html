@@ -1,0 +1,78 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Create Event{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10">
+    <h2 class="text-2xl font-bold mb-6">Create New Event</h2>
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <p class="mb-2 text-sm {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <!-- Event Name -->
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="id_name">
+                Event Name
+            </label>
+            {{ form.name|add_class:"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" }}
+            {{ form.name.errors }}
+        </div>
+
+        <!-- Date -->
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="id_date">
+                Date
+            </label>
+            {{ form.date|add_class:"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" }}
+            {{ form.date.errors }}
+        </div>
+
+        <!-- Time -->
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="id_time">
+                Time
+            </label>
+            {{ form.time|add_class:"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" }}
+            {{ form.time.errors }}
+        </div>
+
+        <!-- Location -->
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="id_location">
+                Location
+            </label>
+            {{ form.location|add_class:"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" }}
+            {{ form.location.errors }}
+        </div>
+
+        <!-- Category -->
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="id_category">
+                Category
+            </label>
+            {{ form.category|add_class:"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" }}
+            {{ form.category.errors }}
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex items-center justify-between">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Create Event
+            </button>
+            <a href="{% url 'eventList' %}" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
