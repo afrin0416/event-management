@@ -31,7 +31,8 @@ def event_list(request):
     events = Event.objects.select_related('category')
 
     if search_query:
-        events = events.filter(Q(name__icontains=search_query) | Q(location__icontains=search_query))
+        events = events.filter(Q(name__icontains=search_query) | Q(
+            location__icontains=search_query))
     if category_id:
         events = events.filter(category_id=category_id)
     if start_date:
@@ -93,9 +94,14 @@ def event_delete(request, event_id):
 # Participant Views
 # -----------------------
 
+# def participant_list(request):
+#     participants = Participant.objects.all()
+#     return render(request, 'events/participantList.html', {'participants': participants})
+@login_required
+@admin_only
 def participant_list(request):
-    participants = Participant.objects.all()
-    return render(request, 'events/participantList.html', {'participants': participants})
+    users = User.objects.all()
+    return render(request, 'events/participantList.html', {'users': users})
 
 
 @login_required
@@ -137,6 +143,11 @@ def participant_delete(request, participant_id):
 # Category Views
 # -----------------------
 
+# def category_list(request):
+#     categories = Category.objects.all()
+#     return render(request, 'events/categoryList.html', {'categories': categories})
+@login_required
+@group_required('Organizer', 'Admin')
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'events/categoryList.html', {'categories': categories})
@@ -210,7 +221,8 @@ def signup_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Account created successfully! Please login.")
+            messages.success(
+                request, "Account created successfully! Please login.")
             return redirect('login')
         else:
             messages.error(request, "Please correct the errors below.")
@@ -317,13 +329,13 @@ def user_list(request):
     return render(request, 'admin/user_list.html', {'users': users})
 
 
-
 @login_required
 @organizer_only
 def create_event(request):
     event_list = Event.objects.all()
     return render(request, 'events/create_event.html', {'events': event_list})
-    
+
+
 @login_required
 @organizer_only
 def delete_event(request, id):
@@ -331,6 +343,8 @@ def delete_event(request, id):
     event.delete()
     messages.success(request, "Event deleted.")
     return redirect('eventList')
+
+
 @login_required
 def event_list(request):
     events = Event.objects.all()

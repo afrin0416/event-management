@@ -1,14 +1,29 @@
-from django.contrib import admin
+# from django.contrib import admin
 from django.urls import path
 from event import views
 
-
 urlpatterns = [
+
+    # --------------------
+    # Public / Participants
+    # --------------------
+
     path('', views.event_list, name='event_list'),
     path('events/<int:event_id>/', views.event_detail, name='event_detail'),
-    path('events/create/', views.event_create, name='event_create'),
-    path('dashboard/', views.organizer_dashboard, name='dashboard'),
+    path('', views.participantList, name='participantList'),
 
+    # --------------------
+    # Event Management (Organizer + Admin)
+    # --------------------
+    path('events/create/', views.event_create, name='event_create'),
+    path('events/update/<int:event_id>/',
+         views.event_update, name='event_update'),
+    path('events/delete/<int:event_id>/',
+         views.event_delete, name='event_delete'),
+
+    # --------------------
+    # Category Management (Organizer + Admin)
+    # --------------------
     path('categories/', views.category_list, name='category_list'),
     path('categories/create/', views.category_create, name='category_create'),
     path('categories/update/<int:category_id>/',
@@ -16,33 +31,27 @@ urlpatterns = [
     path('categories/delete/<int:category_id>/',
          views.category_delete, name='category_delete'),
 
-    path('participants/', views.participant_list, name='participant_list'),
-    path('participants/create/', views.participant_create,
-         name='participant_create'),
-    path('participants/update/<int:participant_id>/',
-         views.participant_update, name='participant_update'),
-    path('participants/delete/<int:participant_id>/',
-         views.participant_delete, name='participant_delete'),
+    # --------------------
+    # Admin Dashboard
+    # --------------------
+    path('dashboard/', views.admin_dashboard, name='dashboard'),
 
+    # --------------------
+    # User & Role Management (Admin only)
+    # --------------------
+    path('admin/users/', views.user_list, name='user_list'),
+    path('admin/users/change-role/<int:user_id>/',
+         views.change_role, name='change_role'),
+
+    path('admin/groups/', views.group_list, name='group_list'),
+    path('admin/groups/create/', views.group_create, name='group_create'),
+    path('admin/groups/delete/<int:group_id>/',
+         views.group_delete, name='group_delete'),
+
+    # --------------------
+    # Authentication
+    # --------------------
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    # Admin role URLs
-    path('groups/', views.group_list, name='group_list'),
-    path('groups/create/', views.group_create, name='group_create'),
-    path('groups/delete/<int:group_id>/',
-         views.group_delete, name='group_delete'),
-
-    path('users/delete/<int:user_id>/', views.user_delete, name='user_delete'),
-    path('users/change_role/<int:user_id>/',
-         views.change_role, name='change_role'),
-
-
-
-    path('events/', views.event_list, name='event_list'),
-    path('events/create/', views.create_event, name='create_event'),
-    path('admin/users/', views.user_list, name='user_list'),
-
-
-
 ]
