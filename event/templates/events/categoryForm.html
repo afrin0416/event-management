@@ -1,32 +1,30 @@
-{% extends 'events/base.html' %} {% load static %} {% block title %}Category
-Form{% endblock %} {% block content %}
+{% extends 'events/base.html' %}
+{% load static %}
+{% block title %}Category Form{% endblock %}
+
+{% block content %}
 <div class="max-w-xl mx-auto mt-10 bg-white p-8 rounded shadow">
   <h2 class="text-2xl font-bold mb-6 text-center text-green-600">
     {% if form.instance.pk %}Update Category{% else %}Create Category{% endif %}
   </h2>
 
   <form method="post" novalidate class="space-y-6">
-    {% csrf_token %} {% if form.non_field_errors %}
+    {% csrf_token %}
+    {% if form.non_field_errors %}
     <div class="text-red-500 text-sm mb-4">{{ form.non_field_errors }}</div>
-    {% endif %} {% for field in form %}
+    {% endif %}
+    {% for field in form %}
     <div>
-      <label
-        for="{{ field.id_for_label }}"
-        class="block font-medium mb-1 text-gray-700"
-      >
-        {{ field.label }}
-      </label>
-      {{ field }} {% if field.errors %}
+      <label for="{{ field.id_for_label }}" class="block font-medium mb-1 text-gray-700">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}
       <p class="text-sm text-red-500 mt-1">{{ field.errors.0 }}</p>
       {% endif %}
     </div>
     {% endfor %}
 
     <div class="text-center">
-      <button
-        type="submit"
-        class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded"
-      >
+      <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded">
         {% if form.instance.pk %}Update{% else %}Create{% endif %}
       </button>
     </div>

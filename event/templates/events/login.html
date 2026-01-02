@@ -4,7 +4,6 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<!-- Center wrapper -->
 <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-full max-w-md bg-white p-8 rounded shadow-md">
         <h2 class="text-3xl font-bold mb-6 text-blue-700 text-center">Login to Your Account</h2>
@@ -12,7 +11,6 @@
         <form method="POST" class="space-y-4">
             {% csrf_token %}
 
-            <!-- Username / Email -->
             <div>
                 <label class="block text-gray-700">Username or Email</label>
                 <input type="text" name="username"
@@ -23,7 +21,6 @@
                 {% endif %}
             </div>
 
-            <!-- Password -->
             <div>
                 <label class="block text-gray-700">Password</label>
                 <input type="password" name="password"

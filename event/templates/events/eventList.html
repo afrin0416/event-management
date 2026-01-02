@@ -13,39 +13,24 @@
     </p>
 
     <!-- Search input -->
-    <input
-      type="text"
-      name="q"
-      placeholder="Search by name or location"
-      value="{{ request.GET.q }}"
-      class="border p-2 rounded w-full sm:w-auto flex-grow"
-    />
+    <input type="text" name="q" placeholder="Search by name or location" value="{{ request.GET.q }}"
+      class="border p-2 rounded w-full sm:w-auto flex-grow" />
 
     <!-- Category Dropdown -->
     <select name="category" class="border p-2 rounded w-full sm:w-auto">
       <option value="">All Categories</option>
       {% for cat in categories %}
-        <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
-          {{ cat.name }}
-        </option>
+      <option value="{{ cat.id }}" {% if cat.is_selected %}selected{% endif %}>
+        {{ cat.name }}
+      </option>
       {% endfor %}
     </select>
 
     <!-- Date Range -->
-    <input
-      type="date"
-      name="start_date"
-      class="border p-2 rounded w-full sm:w-auto"
-      placeholder="Start Date"
-      value="{{ request.GET.start_date }}"
-    />
-    <input
-      type="date"
-      name="end_date"
-      class="border p-2 rounded w-full sm:w-auto"
-      placeholder="End Date"
-      value="{{ request.GET.end_date }}"
-    />
+    <input type="date" name="start_date" class="border p-2 rounded w-full sm:w-auto" placeholder="Start Date"
+      value="{{ request.GET.start_date }}" />
+    <input type="date" name="end_date" class="border p-2 rounded w-full sm:w-auto" placeholder="End Date"
+      value="{{ request.GET.end_date }}" />
 
     <!-- Submit Button -->
     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
@@ -55,16 +40,16 @@
 
   <!-- Event List -->
   {% for event in events %}
-    <div class="bg-white shadow-md rounded p-4 mb-4">
-      <h3 class="text-xl font-semibold mb-1">{{ event.name }}</h3>
-      <p><strong> Date:</strong> {{ event.date }}</p>
-      <p><strong>Time:</strong> {{ event.time }}</p>
-      <p><strong> Location:</strong> {{ event.location }}</p>
-      <p><strong> Category:</strong> {{ event.category.name }}</p>
-      <p><strong>Participants:</strong> {{ event.participants_count }}</p>
-    </div>
+  <div class="bg-white shadow-md rounded p-4 mb-4">
+    <h3 class="text-xl font-semibold mb-1">{{ event.name }}</h3>
+    <p><strong>Date:</strong> {{ event.date }}</p>
+    <p><strong>Time:</strong> {{ event.time }}</p>
+    <p><strong>Location:</strong> {{ event.location }}</p>
+    <p><strong>Category:</strong> {{ event.category.name }}</p>
+    <p><strong>Participants:</strong> {{ event.participants_count }}</p>
+  </div>
   {% empty %}
-    <p class="text-gray-500">No events found.</p>
+  <p class="text-gray-500">No events found.</p>
   {% endfor %}
 </div>
 {% endblock %}

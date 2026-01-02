@@ -1,5 +1,4 @@
-
-{% extends 'base.html' %}
+{% extends 'events/base.html' %}
 
 {% block title %}User List{% endblock %}
 
@@ -8,11 +7,11 @@
     <h2 class="text-2xl font-bold mb-6">All Users</h2>
 
     {% if messages %}
-        <div>
-            {% for message in messages %}
-                <p class="mb-2 text-sm {{ message.tags }}">{{ message }}</p>
-            {% endfor %}
-        </div>
+    <div>
+        {% for message in messages %}
+        <p class="mb-2 text-sm {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+    </div>
     {% endif %}
 
     <table class="min-w-full border border-gray-300 rounded">
@@ -27,30 +26,24 @@
         </thead>
         <tbody>
             {% for user in users %}
-                <tr class="text-center">
-                    <td class="px-4 py-2 border">{{ forloop.counter }}</td>
-                    <td class="px-4 py-2 border">{{ user.username }}</td>
-                    <td class="px-4 py-2 border">{{ user.email }}</td>
-                    <td class="px-4 py-2 border">
-                        {% if user.groups.all %}
-                            {{ user.groups.all.0.name }}
-                        {% else %}
-                            No Role
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-2 border">
-                        <a href="{% url 'change_role' %}?user_id={{ user.id }}" 
-                           class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                            Change Role
-                        </a>
-                    </td>
-                </tr>
+            <tr class="text-center">
+                <td class="px-4 py-2 border">{{ forloop.counter }}</td>
+                <td class="px-4 py-2 border">{{ user.username }}</td>
+                <td class="px-4 py-2 border">{{ user.email }}</td>
+                <td class="px-4 py-2 border">
+                    {% if user.groups.all %}{{ user.groups.all.0.name }}{% else %}No Role{% endif %}
+                </td>
+                <td class="px-4 py-2 border">
+                    <a href="{% url 'change_role' %}?user_id={{ user.id }}"
+                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                        Change Role
+                    </a>
+                </td>
+            </tr>
             {% empty %}
-                <tr>
-                    <td colspan="5" class="px-4 py-2 text-center text-gray-500">
-                        No users found.
-                    </td>
-                </tr>
+            <tr>
+                <td colspan="5" class="px-4 py-2 text-center text-gray-500">No users found.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>

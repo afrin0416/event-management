@@ -1,53 +1,24 @@
 from django import forms
-from .models import Event, Category, Participant
+from .models import Event, Category
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group, Permission
-
 
 
 class StyledFormMixin:
     default_classes = "border-2 border-gray-300 w-full p-3 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 focus:ring-rose-500"
 
     def apply_styled_widgets(self):
-        for field_name, field in self.fields.items():
-            if isinstance(field.widget, forms.TextInput):
-                field.widget.attrs.update({
-                    'class': self.default_classes,
-                    'placeholder': f"Enter {field.label.lower()}"
-                })
-            elif isinstance(field.widget, forms.Textarea):
-                field.widget.attrs.update({
-                    'class': f"{self.default_classes} resize-none",
-                    'placeholder': f"Enter {field.label.lower()}",
-                    'rows': 5
-                })
-            elif isinstance(field.widget, forms.SelectDateWidget):
-                field.widget.attrs.update({
-                    'class': self.default_classes
-                })
-            elif isinstance(field.widget, forms.Select):
-                field.widget.attrs.update({
-                    'class': self.default_classes
-                })
-            elif isinstance(field.widget, forms.CheckboxSelectMultiple):
-                field.widget.attrs.update({
-                    'class': "space-y-2"
-                })
-            else:
-                field.widget.attrs.update({
-                    'class': self.default_classes
-                })
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': self.default_classes})
+
 
 # Event Form
-
-
 class EventForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Event
         fields = '__all__'
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
-
             'time': forms.TimeInput(attrs={'type': 'time'}),
         }
 
@@ -67,21 +38,7 @@ class CategoryForm(StyledFormMixin, forms.ModelForm):
         self.apply_styled_widgets()
 
 
-# Participant Form
-class ParticipantForm(StyledFormMixin, forms.ModelForm):
-    class Meta:
-        model = Participant
-        fields = '__all__'
-        widgets = {
-            'events': forms.CheckboxSelectMultiple
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.apply_styled_widgets()
-# user Registration Form
-
-
+# User Registration Form
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
@@ -89,19 +46,24 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name',
-                  'last_name', 'password1', 'password2']
+        fields = [
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'password1',
+            'password2'
+        ]
+
+
+# Group Creation Form (Admin only)
 class CreateGroupForm(StyledFormMixin, forms.ModelForm):
     permissions = forms.ModelMultipleChoiceField(
         queryset=Permission.objects.all(),
         widget=forms.CheckboxSelectMultiple,
-        required=False,
-        label='Assign Permissions'
+        required=False
     )
 
     class Meta:
         model = Group
         fields = ['name', 'permissions']
-        labels = {
-            'name': 'Group Name',
-        }

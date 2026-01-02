@@ -1,39 +1,81 @@
 {% extends 'events/base.html' %}
-{% block title %}Participants List{% endblock %}
+{% load static %}
+
+{% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-4">
-    <h2 class="text-xl font-semibold">Participants</h2>
-    <a href="{% url 'participant_create' %}" class="bg-indigo-600 text-white px-4 py-2 text-sm rounded hover:bg-indigo-700">
-        + Add Participant
-    </a>
-</div>
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md bg-white p-8 rounded shadow-md">
+        <h2 class="text-3xl font-bold mb-6 text-blue-700 text-center">Create Account</h2>
 
-{% if participants %}
-<div class="overflow-x-auto bg-white shadow rounded-lg">
-    <table class="min-w-full divide-y divide-gray-200 text-sm">
-        <thead class="bg-indigo-100 text-indigo-700">
-            <tr>
-                <th class="px-4 py-2 text-left">Name</th>
-                <th class="px-4 py-2 text-left">Email</th>
-                <th class="px-4 py-2 text-left">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-            {% for participant in participants %}
-            <tr>
-                <td class="px-4 py-2">{{ participant.name }}</td>
-                <td class="px-4 py-2">{{ participant.email }}</td>
-                <td class="px-4 py-2 space-x-2">
-                    <a href="{% url 'participant_update' participant.pk %}" class="text-blue-600 hover:underline">Edit</a>
-                    <a href="{% url 'participant_delete' participant.pk %}" class="text-red-600 hover:underline">Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% else %}
-    <p class="text-gray-600 mt-4">No participants found.</p>
-{% endif %}
-{% endblock %}
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-gray-700">First Name</label>
+                <input type="text" name="first_name"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900"
+                    value="{{ form.first_name.value|default:'' }}">
+                {% if form.first_name.errors %}
+                    <p class="text-red-500 text-sm">{{ form.first_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-gray-700">Last Name</label>
+                <input type="text" name="last_name"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900"
+                    value="{{ form.last_name.value|default:'' }}">
+                {% if form.last_name.errors %}
+                    <p class="text-red-500 text-sm">{{ form.last_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-gray-700">Username</label>
+                <input type="text" name="username"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-yellow-100 text-blue-700"
+                    value="{{ form.username.value|default:'' }}">
+                {% if form.username.errors %}
+                    <p class="text-red-500 text-sm">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-gray-700">Email</label>
+                <input type="email" name="email"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900"
+                    value="{{ form.email.value|default:'' }}">
+                {% if form.email.errors %}
+                    <p class="text-red-500 text-sm">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-gray-700">Password</label>
+                <input type="password" name="password1"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900">
+                {% if form.password1.errors %}
+                    <p class="text-red-500 text-sm">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-gray-700">Confirm Password</label>
+                <input type="password" name="password2"
+                    class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900">
+                {% if form.password2.errors %}
+                    <p class="text-red-500 text-sm">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Sign Up
+            </button>
+        </form>
+
+        <p class="mt-4 text-center text-gray-600">
+            Already have an account? <a href="{% url 'login' %}" class="text-blue-600 hover:underline">Login</a>
+        </p>
+    </div>
+</div> {% endblock %}

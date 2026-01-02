@@ -14,27 +14,28 @@
   <nav class="bg-white shadow p-4 flex justify-between">
     <h1 class="text-xl font-bold text-blue-600">Event Manager</h1>
     <div class="space-x-4">
-    <a href="{% url 'event_list' %}" class="text-gray-700 hover:text-blue-500">Events</a>
-      <a href="{% url 'participantList' %}" class="text-gray-700 hover:text-blue-500">Participants</a>
+      <a href="{% url 'event_list' %}" class="text-gray-700 hover:text-blue-500">Events</a>
+      <a href="{% url 'participant_list' %}" class="text-gray-700 hover:text-blue-500">Participants</a>
       <a href="{% url 'category_list' %}" class="text-gray-700 hover:text-blue-500">Categories</a>
       <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-500">Dashboard</a>
 
       {% if user.is_authenticated %}
-        {% if user.groups.exists %}
-          {% with user_group=user.groups.all.0.name %}
-            {% if user_group == "Organizer" %}
-              <a href="{% url 'create_event' %}" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Create Event</a>
-            {% elif user_group == "Admin" %}
-              <a href="{% url 'user_list' %}" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Manage Users</a>
-            {% endif %}
-          {% endwith %}
-        {% endif %}
+      {% if user.groups.exists %}
+      {% with user_group=user.groups.all.0.name %}
+      {% if user_group == "Organizer" %}
+      <a href="{% url 'event_create' %}" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Create
+        Event</a>
+      {% elif user_group == "Admin" %}
+      <a href="{% url 'user_list' %}" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Manage Users</a>
+      {% endif %}
+      {% endwith %}
+      {% endif %}
 
-        <span class="text-gray-700">Welcome, {{ user.username }}</span>
-        <a href="{% url 'logout' %}" class="text-gray-700 hover:text-blue-500">Logout</a>
+      <span class="text-gray-700">Welcome, {{ user.username }}</span>
+      <a href="{% url 'logout' %}" class="text-gray-700 hover:text-blue-500">Logout</a>
       {% else %}
-        <a href="{% url 'signup' %}" class="text-gray-700 hover:text-blue-500">Sign Up</a>
-        <a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-500">Login</a>
+      <a href="{% url 'signup' %}" class="text-gray-700 hover:text-blue-500">Sign Up</a>
+      <a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-500">Login</a>
       {% endif %}
     </div>
   </nav>
@@ -50,4 +51,5 @@
   </footer>
 
 </body>
+
 </html>
