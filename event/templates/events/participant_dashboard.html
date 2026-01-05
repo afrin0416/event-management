@@ -1,0 +1,29 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Participant Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Your RSVP'd Events</h2>
+
+    {% if rsvp_events %}
+        <div class="list-group">
+            {% for event in rsvp_events %}
+            <a href="{% url 'event_detail' event.id %}" class="list-group-item list-group-item-action flex-column align-items-start mb-2">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ event.name }}</h5>
+                    <small>{{ event.date|date:"F j, Y" }}</small>
+                </div>
+                <p class="mb-1">{{ event.location }}</p>
+                {% if event.category %}
+                    <small>Category: {{ event.category.name }}</small>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">You haven’t RSVP’d to any events yet.</p>
+        <a href="{% url 'event_list' %}" class="btn btn-primary mt-2">View Events</a>
+    {% endif %}
+</div>
+{% endblock %}

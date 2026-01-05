@@ -56,7 +56,7 @@ class CustomUserCreationForm(UserCreationForm):
         ]
 
 
-# Group Creation Form (Admin only)
+
 class CreateGroupForm(StyledFormMixin, forms.ModelForm):
     permissions = forms.ModelMultipleChoiceField(
         queryset=Permission.objects.all(),
