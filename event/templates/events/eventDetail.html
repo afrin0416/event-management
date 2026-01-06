@@ -1,34 +1,42 @@
 {% extends 'events/base.html' %}
 {% load static %}
+
 {% block title %}Event Detail{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto mt-10 bg-white p-8 rounded shadow">
   <h2 class="text-3xl font-bold mb-4 text-blue-700">{{ event.name }}</h2>
 
+  {% if event.image %}
+    <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full h-64 object-cover rounded mb-4">
+  {% else %}
+    <img src="{% static 'events/default_event.jpg' %}" alt="Default" class="w-full h-64 object-cover rounded mb-4">
+  {% endif %}
+
   <div class="mb-6 space-y-2">
     <p><strong>Description:</strong> {{ event.description }}</p>
-    <p><strong>Date:</strong> {{ event.date }}</p>
+    <p><strong>Date:</strong> {{ event.date|date:"F j, Y" }}</p>
     <p><strong>Time:</strong> {{ event.time }}</p>
     <p><strong>Location:</strong> {{ event.location }}</p>
     <p><strong>Category:</strong> {{ event.category.name }}</p>
   </div>
 
-  <hr class="my-6" />
+  {% if user.is_authenticated and is_participant %}
+    {% if not has_rsvped %}
+        <form method="post" action="{% url 'rsvp_event' event.id %}">
+            {% csrf_token %}
+            <button type="submit" 
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                RSVP
+            </button>
+        </form>
+    {% else %}
+        <p class="text-green-600 font-semibold mt-2">
+            You have already RSVPed for this event.
+        </p>
+    {% endif %}
+{% endif %}
 
-  
-  {% if user.is_authenticated and user.groups.all.0.name == "Participant" %}
-      {% if user not in event.rsvps.all %}
-          <a href="{% url 'rsvp_event' event.id %}" 
-             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              RSVP
-          </a>
-      {% else %}
-          <p class="text-green-600 font-semibold mt-2">
-              You have already RSVP’d to this event.
-          </p>
-      {% endif %}
-  {% endif %}
 
   <hr class="my-6" />
 
@@ -37,20 +45,20 @@
   </h3>
 
   {% if event.rsvps.exists %}
-  <ul class="list-disc pl-5 space-y-1">
-    {% for participant in event.rsvps.all %}
-    <li>
-      <span class="font-medium">{{ participant.get_full_name }}</span> -
-      <a href="mailto:{{ participant.email }}" class="text-blue-600 hover:underline">
-        {{ participant.email }}
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
+    <ul class="list-disc pl-5 space-y-1">
+      {% for participant in event.rsvps.all %}
+        <li>
+          <span class="font-medium">{{ participant.get_full_name }}</span> -
+          <a href="mailto:{{ participant.email }}" class="text-blue-600 hover:underline">
+            {{ participant.email }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
   {% else %}
-  <p class="text-gray-500">
-    No participants have RSVP’d for this event yet.
-  </p>
+    <p class="text-gray-500">
+      No participants have RSVP’d for this event yet.
+    </p>
   {% endif %}
 </div>
 {% endblock %}

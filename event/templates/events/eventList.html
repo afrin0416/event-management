@@ -8,63 +8,93 @@
 
   <!-- Filter & Search Form -->
   <form method="get" class="flex flex-wrap gap-4 mb-6 items-center">
-    <input type="text" name="q" placeholder="Search by name or location" value="{{ request.GET.q }}"
-      class="border p-2 rounded w-full sm:w-auto flex-grow" />
+    <!-- Search Input -->
+    <input 
+      type="text" 
+      name="q" 
+      placeholder="Search by name or location" 
+      value="{{ search_query }}" 
+      class="border p-2 rounded w-full sm:w-auto flex-grow"
+    />
 
     <!-- Category Dropdown -->
     <select name="category" class="border p-2 rounded w-full sm:w-auto">
       <option value="">All Categories</option>
       {% for cat in categories %}
-      <option value="{{ cat.id }}" {% if cat.is_selected %}selected{% endif %}>
-        {{ cat.name }}
-      </option>
+        <option value="{{ cat.id }}" {% if cat.is_selected %}selected{% endif %}>
+          {{ cat.name }}
+        </option>
       {% endfor %}
     </select>
 
     <!-- Date Range -->
-    <input type="date" name="start_date" class="border p-2 rounded w-full sm:w-auto" placeholder="Start Date"
-      value="{{ request.GET.start_date }}" />
-    <input type="date" name="end_date" class="border p-2 rounded w-full sm:w-auto" placeholder="End Date"
-      value="{{ request.GET.end_date }}" />
+    <input 
+      type="date" 
+      name="start_date" 
+      value="{{ start_date }}" 
+      class="border p-2 rounded w-full sm:w-auto" 
+      placeholder="Start Date"
+    />
+    <input 
+      type="date" 
+      name="end_date" 
+      value="{{ end_date }}" 
+      class="border p-2 rounded w-full sm:w-auto" 
+      placeholder="End Date"
+    />
 
-    <!-- Submit Button -->
+    <!-- Filter Button -->
     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
       Filter
     </button>
   </form>
 
+  <!-- Create Event Button -->
+  {% if can_create_event %}
+    <a href="{% url 'event_create' %}" 
+       class="bg-green-500 text-white px-4 py-2 rounded mb-6 inline-block hover:bg-green-600 font-semibold">
+      + Create Event
+    </a>
+  {% endif %}
+
   <!-- Event List -->
   {% for event in events %}
-  <div class="bg-white shadow-md rounded p-4 mb-4">
-    <h3 class="text-xl font-semibold mb-1">{{ event.name }}</h3>
-    <p><strong>Date:</strong> {{ event.date|date:"F j, Y" }}</p>
-    <p><strong>Time:</strong> {{ event.time }}</p>
-    <p><strong>Location:</strong> {{ event.location }}</p>
-    {% if event.category %}
-    <p><strong>Category:</strong> {{ event.category.name }}</p>
-    {% endif %}
-    <p><strong>RSVPs:</strong> {{ event.rsvps.count }}</p>
-
-    <!-- RSVP Button -->
-    {% if user.is_authenticated and user.groups.first.name == "Participant" %}
-      {% if user in event.rsvps.all %}
-        <button class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed mt-2" disabled>
-          Already RSVP’d
-        </button>
-      {% else %}
-        <form method="post" action="{% url 'rsvp_event' event.id %}" class="mt-2">
-          {% csrf_token %}
-          <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-            RSVP
-          </button>
-        </form>
+    <div class="bg-white shadow-md rounded p-4 mb-4">
+      <h3 class="text-xl font-semibold mb-1 text-blue-600">{{ event.name }}</h3>
+      <p><strong>Date:</strong> {{ event.date }}</p>
+      <p><strong>Location:</strong> {{ event.location }}</p>
+      {% if event.category %}
+        <p><strong>Category:</strong> {{ event.category.name }}</p>
       {% endif %}
-    {% else %}
-      <p class="text-sm text-gray-500 mt-2">Login as a participant to RSVP.</p>
-    {% endif %}
-  </div>
+
+      <!-- RSVP Button -->
+      {% if user.is_authenticated and user.groups.first.name == "Participant" %}
+        {% if user in event.rsvps.all %}
+          <button class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed mt-2" disabled>
+            Already RSVP’d
+          </button>
+        {% else %}
+          <form method="post" action="{% url 'rsvp_event' event.id %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+              RSVP
+            </button>
+          </form>
+        {% endif %}
+      {% else %}
+        <p class="text-sm text-gray-500 mt-2">Login as a participant to RSVP.</p>
+      {% endif %}
+
+      <!-- View Details Link -->
+      <div class="mt-3 text-right">
+        <a href="{% url 'event_detail' event.id %}" 
+           class="text-blue-500 hover:underline font-medium">
+          View Details →
+        </a>
+      </div>
+    </div>
   {% empty %}
-  <p class="text-gray-500">No events found.</p>
+    <p class="text-gray-500 text-center py-10">No events found.</p>
   {% endfor %}
 </div>
 {% endblock %}

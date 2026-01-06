@@ -10,6 +10,7 @@ class Category(models.Model):
         return self.name
 
 
+
 class Event(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
@@ -17,6 +18,12 @@ class Event(models.Model):
     time = models.TimeField()
     location = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    image = models.ImageField(
+        upload_to='events/',
+        default='events/default.jpg',
+        blank=True
+    )
 
     rsvps = models.ManyToManyField(
         User,

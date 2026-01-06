@@ -13,18 +13,25 @@ class StyledFormMixin:
 
 
 # Event Form
-class EventForm(StyledFormMixin, forms.ModelForm):
+class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = '__all__'
+        fields = '__all__' 
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),
-            'time': forms.TimeInput(attrs={'type': 'time'}),
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'border rounded px-2 py-1 w-full'}),
+            'time': forms.TimeInput(attrs={'type': 'time', 'class': 'border rounded px-2 py-1 w-full'}),
+            'title': forms.TextInput(attrs={'class': 'border rounded px-2 py-1 w-full'}),
+            'description': forms.Textarea(attrs={'class': 'border rounded px-2 py-1 w-full', 'rows': 4}),
+            
+            'image': forms.ClearableFileInput(attrs={'class': 'border rounded px-2 py-1 w-full'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.apply_styled_widgets()
+       
+        for field_name, field in self.fields.items():
+            if not isinstance(field.widget, (forms.DateInput, forms.TimeInput, forms.ClearableFileInput)):
+                field.widget.attrs.update({'class': 'border rounded px-2 py-1 w-full'})
 
 
 # Category Form

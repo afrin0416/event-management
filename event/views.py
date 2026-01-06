@@ -28,44 +28,77 @@ from .decorators import group_required, admin_only
 # -----------------------
 
 def event_list(request):
+    
     search_query = request.GET.get('q', '')
     category_id = request.GET.get('category')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
+    
     events = Event.objects.select_related('category')
 
+    
     if search_query:
         events = events.filter(
             Q(name__icontains=search_query) |
             Q(location__icontains=search_query)
         )
 
+    
     if category_id:
         events = events.filter(category_id=category_id)
 
+    
     if start_date:
         events = events.filter(date__gte=parse_date(start_date))
 
     if end_date:
         events = events.filter(date__lte=parse_date(end_date))
 
+    
     categories = Category.objects.all()
     category_selected = request.GET.get('category')
-
     for cat in categories:
         cat.is_selected = str(cat.id) == category_selected
 
-    return render(request, 'events/eventList.html', {
+    
+    can_create_event = False
+    user = request.user
+    if user.is_authenticated:
+        if user.groups.filter(name__in=['Organizer', 'Admin']).exists():
+            can_create_event = True
+
+    
+    context = {
         'events': events,
         'categories': categories,
-    })
+        'can_create_event': can_create_event,
+        'search_query': search_query,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
 
+    return render(request, 'events/eventList.html', context)
 
 def event_detail(request, event_id):
+    
     event = get_object_or_404(Event, id=event_id)
-    return render(request, 'events/eventDetail.html', {'event': event})
+    
+    user = request.user
+    is_participant = False
+    has_rsvped = False
 
+    if user.is_authenticated:
+        is_participant = user.groups.filter(name='Participant').exists()
+        has_rsvped = user in event.rsvps.all()
+    
+    context = {
+        'event': event,
+        'is_participant': is_participant,
+        'has_rsvped': has_rsvped,
+    }
+    
+    return render(request, 'events/eventDetail.html', context)
 
 
 @login_required
@@ -74,7 +107,7 @@ def rsvp_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
 
-    # Prevent duplicate RSVP
+  
     if event.rsvps.filter(id=user.id).exists():
         messages.warning(request, "You have already RSVP’d to this event.")
         return redirect('event_detail', event_id=event.id)
@@ -82,7 +115,7 @@ def rsvp_event(request, event_id):
     event.rsvps.add(user)
     messages.success(request, "RSVP successful!")
 
-    # Send confirmation email (console backend)
+   
     send_mail(
         subject=f"RSVP Confirmation for {event.name}",
         message=f"Hi {user.username},\n\nYou have successfully RSVP’d for {event.name} on {event.date} at {event.location}.\n\nThank you!",
@@ -111,7 +144,8 @@ def participant_dashboard(request):
 @group_required('Organizer', 'Admin')
 def event_create(request):
     if request.method == 'POST':
-        form = EventForm(request.POST)
+        
+        form = EventForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, "Event created successfully.")
@@ -126,7 +160,8 @@ def event_create(request):
 def event_update(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     if request.method == 'POST':
-        form = EventForm(request.POST, instance=event)
+        
+        form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
             form.save()
             messages.success(request, "Event updated successfully.")
@@ -230,14 +265,13 @@ def signup_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False  # deactivate until email activation
+            user.is_active = False
             user.save()
 
-            # add to Participant group
             participant_group = Group.objects.get(name='Participant')
             user.groups.add(participant_group)
 
-            # send activation email
+            
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             activation_link = request.build_absolute_uri(
