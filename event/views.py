@@ -80,22 +80,30 @@ def event_list(request):
 
     return render(request, 'events/eventList.html', context)
 
+
 def event_detail(request, event_id):
-    
     event = get_object_or_404(Event, id=event_id)
     
     user = request.user
     is_participant = False
     has_rsvped = False
+    can_update = False  
 
     if user.is_authenticated:
+        
         is_participant = user.groups.filter(name='Participant').exists()
+        
+        
         has_rsvped = user in event.rsvps.all()
-    
+        
+        
+        can_update = user.groups.filter(name__in=['Organizer', 'Admin']).exists()
+
     context = {
         'event': event,
         'is_participant': is_participant,
         'has_rsvped': has_rsvped,
+        'can_update': can_update,  # <-- pass to template
     }
     
     return render(request, 'events/eventDetail.html', context)
@@ -144,6 +152,7 @@ def participant_dashboard(request):
 @group_required('Organizer', 'Admin')
 def event_create(request):
     if request.method == 'POST':
+        print("FILES:", request.FILES) 
         
         form = EventForm(request.POST, request.FILES)
         if form.is_valid():

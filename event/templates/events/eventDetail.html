@@ -5,14 +5,18 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto mt-10 bg-white p-8 rounded shadow">
+  
+  <!-- Event Name -->
   <h2 class="text-3xl font-bold mb-4 text-blue-700">{{ event.name }}</h2>
 
+  <!-- Event Image -->
   {% if event.image %}
     <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-full h-64 object-cover rounded mb-4">
   {% else %}
     <img src="{% static 'events/default_event.jpg' %}" alt="Default" class="w-full h-64 object-cover rounded mb-4">
   {% endif %}
 
+  <!-- Event Details -->
   <div class="mb-6 space-y-2">
     <p><strong>Description:</strong> {{ event.description }}</p>
     <p><strong>Date:</strong> {{ event.date|date:"F j, Y" }}</p>
@@ -21,25 +25,34 @@
     <p><strong>Category:</strong> {{ event.category.name }}</p>
   </div>
 
-  {% if user.is_authenticated and is_participant %}
-    {% if not has_rsvped %}
-        <form method="post" action="{% url 'rsvp_event' event.id %}">
-            {% csrf_token %}
-            <button type="submit" 
-                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                RSVP
-            </button>
-        </form>
-    {% else %}
-        <p class="text-green-600 font-semibold mt-2">
-            You have already RSVPed for this event.
-        </p>
-    {% endif %}
-{% endif %}
+  <!-- Edit Now Button (Organizer/Admin) -->
+  {% if user.is_authenticated and can_update %}
+    <div class="mt-6">
+    <a href="{% url 'event_update' event.id %}"
+   class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+   Edit Now
+</a>
 
+    </div> {% endif %}
+
+  <!-- RSVP Logic for Participants -->
+  {% if is_participant %}
+      {% if has_rsvped %}
+          <p class="text-green-600 font-semibold mt-4">You have already RSVPed</p>
+      {% else %}
+          <form action="{% url 'event_rsvp' event.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit"
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-4">
+                  RSVP for this event
+              </button>
+          </form>
+      {% endif %}
+  {% endif %}
 
   <hr class="my-6" />
 
+  <!-- Participants List -->
   <h3 class="text-2xl font-semibold mb-4">
     Participants ({{ event.rsvps.count }})
   </h3>
@@ -58,7 +71,7 @@
   {% else %}
     <p class="text-gray-500">
       No participants have RSVP’d for this event yet.
-    </p>
-  {% endif %}
+    </p> {% endif %}
+
 </div>
 {% endblock %}
