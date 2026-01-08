@@ -25,9 +25,14 @@ SECRET_KEY = 'django-insecure-k1j653&1u-!fa^e)ny!kq4b*932lqz2w9-y@v&g!!9gnttfq^*
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = 'RENDER'
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['*']
+
+AALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "event-management-1-73av.onrender.com,localhost,127.0.0.1"
+).split(",")
+
 # # CSRF_TRUSTED_ORIGINS = [
 # #     "https://event-management-06r0.onrender.com", 'http://127.0.0.1:8000']
 # CSRF_TRUSTED_ORIGINS = [
@@ -142,7 +147,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
@@ -164,3 +170,4 @@ LOGIN_URL = 'login'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@example.com'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
