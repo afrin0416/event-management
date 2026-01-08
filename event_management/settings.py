@@ -64,17 +64,32 @@ INSTALLED_APPS = [
     'event'
 ]
 
+# MIDDLEWARE = [
+#     'django.middleware.security.SecurityMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'whitenoise.middleware.WhiteNoiseMiddleware',
+
+# ]
+
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
 ]
+
 
 ROOT_URLCONF = 'event_management.urls'
 
@@ -101,11 +116,7 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 
 #
 DATABASES = {
-    # 'default': dj_database_url.config(
-    #     # Replace this value with your local database's connection string.
-    #     default='postgresql://event_managementdb_xo7u_user:knCZGzOWqbB7Bll6GcRwyQRHCOoodolm@dpg-d2doi67diees73enou9g-a.oregon-postgres.render.com/event_managementdb_xo7u',
-    #     conn_max_age=600
-    # )
+    
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
         default='postgresql://event_management_25ki_user:jWihHclQv9S1dSTJEw8OfMWUCZUGQXMX@dpg-d5fv7pn5r7bs73des2r0-a.oregon-postgres.render.com/event_management_25ki',
@@ -153,6 +164,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MEDIA_URL = '/media/'
@@ -175,3 +189,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SESSION_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SAMESITE = 'None'
+
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
