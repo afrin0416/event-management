@@ -42,6 +42,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
 ]
 
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 
 # Application definition
