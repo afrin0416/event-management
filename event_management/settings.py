@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -50,7 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
 
 ]
 
@@ -86,7 +87,7 @@ DATABASES = {
     # )
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgres://postgres:toor@127.0.0.1:5432/event-management',
+        default='postgresql://event_management_25ki_user:jWihHclQv9S1dSTJEw8OfMWUCZUGQXMX@dpg-d5fv7pn5r7bs73des2r0-a.oregon-postgres.render.com/event_management_25ki',
         conn_max_age=600
     )
 }
@@ -130,7 +131,6 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MEDIA_URL = '/media/'
@@ -148,4 +148,4 @@ LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@example.com' 
+DEFAULT_FROM_EMAIL = 'noreply@example.com'
