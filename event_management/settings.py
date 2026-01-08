@@ -28,10 +28,11 @@ SECRET_KEY = 'django-insecure-k1j653&1u-!fa^e)ny!kq4b*932lqz2w9-y@v&g!!9gnttfq^*
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 
-AALLOWED_HOSTS = os.getenv(
+ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
     "event-management-1-73av.onrender.com,localhost,127.0.0.1"
 ).split(",")
+
 
 # # CSRF_TRUSTED_ORIGINS = [
 # #     "https://event-management-06r0.onrender.com", 'http://127.0.0.1:8000']
