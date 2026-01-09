@@ -1,60 +1,57 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>{% block title %}Event Management{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
 
 <body class="bg-gray-50 min-h-screen flex flex-col font-sans">
 
-  <!-- Navbar -->
-  <nav class="bg-white shadow-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16 items-center">
-        <h1 class="text-2xl font-bold text-blue-600">Event Manager</h1>
-        <div class="flex items-center space-x-4">
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
 
-          <a href="{% url 'event_list' %}" class="text-gray-700 hover:text-blue-600 font-medium transition">Events</a>
-          <a href="{% url 'participant_list' %}" class="text-gray-700 hover:text-blue-600 font-medium transition">Participants</a>
-          <a href="{% url 'category_list' %}" class="text-gray-700 hover:text-blue-600 font-medium transition">Categories</a>
-          <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600 font-medium transition">Dashboard</a>
+    <h1 class="text-2xl font-bold text-blue-600">Event Manager</h1>
 
-          {% if user.is_authenticated %}
-          {% if user.groups.exists %}
-          {% with user_group=user.groups.all.0.name %}
-          {% if user_group == "Organizer" %}
-          <a href="{% url 'event_create' %}" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
-            Create Event
-          </a>
-          {% elif user_group == "Admin" %}
-          <a href="{% url 'user_list' %}" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">
-            Manage Users
-          </a>
+    <div class="flex items-center space-x-4">
+      <a href="{% url 'event_list' %}" class="hover:text-blue-600">Events</a>
+      <a href="{% url 'participant_list' %}" class="hover:text-blue-600">Participants</a>
+      <a href="{% url 'category_list' %}" class="hover:text-blue-600">Categories</a>
+      <a href="{% url 'dashboard' %}" class="hover:text-blue-600">Dashboard</a>
+
+      {% if user.is_authenticated %}
+
+        {% for group in user.groups.all %}
+          {% if group.name == "Organizer" %}
+            <a href="{% url 'event_create' %}"
+               class="bg-green-500 text-white px-3 py-1 rounded">
+              Create Event
+            </a>
+          {% elif group.name == "Admin" %}
+            <a href="{% url 'user_list' %}"
+               class="bg-red-500 text-white px-3 py-1 rounded">
+              Manage Users
+            </a>
           {% endif %}
-          {% endwith %}
-          {% endif %}
+        {% endfor %}
 
-          <span class="text-gray-700 ml-2 font-medium">Hi, {{ user.username }}</span>
-          <a href="{% url 'logout' %}" class="text-gray-700 hover:text-blue-600 font-medium transition">Logout</a>
+        <span class="ml-2">Hi, {{ user.username }}</span>
+        <a href="{% url 'logout' %}" class="hover:text-blue-600">Logout</a>
 
-          {% else %}
-          <a href="{% url 'signup' %}" class="text-gray-700 hover:text-blue-600 font-medium transition">Sign Up</a>
-          <a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-600 font-medium transition">Login</a>
-          {% endif %}
-
-        </div>
-      </div>
+      {% else %}
+        <a href="{% url 'signup' %}" class="hover:text-blue-600">Sign Up</a>
+        <a href="{% url 'login' %}" class="hover:text-blue-600">Login</a>
+      {% endif %}
     </div>
-  </nav>
 
-  <!-- Page Content -->
-  <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    {% block content %} {% endblock %}
-  </main>
+  </div>
+</nav>
 
-  <!-- Footer -->
-  <footer class="bg-white shad
+<main class="flex-1 container mx-auto px-4 py-6">
+  {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>
