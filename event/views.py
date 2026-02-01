@@ -13,7 +13,11 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
-
+from django.urls import reverse_lazy
+from django.core.exceptions import PermissionDenied
+from django.views.generic import CreateView,UpdateView, DeleteView
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Event, Category
 from .forms import (
     EventForm,
@@ -25,88 +29,84 @@ from .decorators import group_required, admin_only
 
 # -----------------------
 # Participant Views
-# -----------------------
+# ----------------------
+class EventListView(View):
+    template_name = 'events/eventList.html'
 
-def event_list(request):
-    
-    search_query = request.GET.get('q', '')
-    category_id = request.GET.get('category')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    def get(self, request):
+        search_query = request.GET.get('q', '')
+        category_id = request.GET.get('category')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
 
-    
-    events = Event.objects.select_related('category')
-
-    
-    if search_query:
-        events = events.filter(
-            Q(name__icontains=search_query) |
-            Q(location__icontains=search_query)
-        )
+        events = Event.objects.select_related('category')
 
     
-    if category_id:
-        events = events.filter(category_id=category_id)
+        if search_query:
+            events = events.filter(
+                Q(name__icontains=search_query) |
+                Q(location__icontains=search_query)
+            )
 
-    
-    if start_date:
-        events = events.filter(date__gte=parse_date(start_date))
-
-    if end_date:
-        events = events.filter(date__lte=parse_date(end_date))
-
-    
-    categories = Category.objects.all()
-    category_selected = request.GET.get('category')
-    for cat in categories:
-        cat.is_selected = str(cat.id) == category_selected
-
-    
-    can_create_event = False
-    user = request.user
-    if user.is_authenticated:
-        if user.groups.filter(name__in=['Organizer', 'Admin']).exists():
-            can_create_event = True
-
-    
-    context = {
-        'events': events,
-        'categories': categories,
-        'can_create_event': can_create_event,
-        'search_query': search_query,
-        'start_date': start_date,
-        'end_date': end_date,
-    }
-
-    return render(request, 'events/eventList.html', context)
-
-
-def event_detail(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    
-    user = request.user
-    is_participant = False
-    has_rsvped = False
-    can_update = False  
-
-    if user.is_authenticated:
         
-        is_participant = user.groups.filter(name='Participant').exists()
-        
-        
-        has_rsvped = user in event.rsvps.all()
-        
-        
-        can_update = user.groups.filter(name__in=['Organizer', 'Admin']).exists()
+        if category_id:
+            events = events.filter(category_id=category_id)
 
-    context = {
-        'event': event,
-        'is_participant': is_participant,
-        'has_rsvped': has_rsvped,
-        'can_update': can_update,  # <-- pass to template
-    }
-    
-    return render(request, 'events/eventDetail.html', context)
+        
+        if start_date:
+            events = events.filter(date__gte=parse_date(start_date))
+
+        if end_date:
+            events = events.filter(date__lte=parse_date(end_date))
+
+        
+        categories = Category.objects.all()
+        for cat in categories:
+            cat.is_selected = str(cat.id) == category_id
+
+        
+        can_create_event = False
+        user = request.user
+        if user.is_authenticated:
+            if user.groups.filter(name__in=['Organizer', 'Admin']).exists():
+                can_create_event = True
+
+        context = {
+            'events': events,
+            'categories': categories,
+            'can_create_event': can_create_event,
+            'search_query': search_query,
+            'start_date': start_date,
+            'end_date': end_date,
+        }
+
+        return render(request, self.template_name, context)
+
+
+class EventDetailView(View):
+    def get(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
+
+        user = request.user
+        is_participant = False
+        has_rsvped = False
+        can_update = False
+
+        if user.is_authenticated:
+            is_participant = user.groups.filter(name='Participant').exists()
+            has_rsvped = user in event.rsvps.all()
+            can_update = user.groups.filter(
+                name__in=['Organizer', 'Admin']
+            ).exists()
+
+        context = {
+            'event': event,
+            'is_participant': is_participant,
+            'has_rsvped': has_rsvped,
+            'can_update': can_update,
+        }
+
+        return render(request, 'events/eventDetail.html', context)
 
 
 @login_required
@@ -148,45 +148,70 @@ def participant_dashboard(request):
 # Event Management (Organizer + Admin)
 # -----------------------
 
-@login_required
-@group_required('Organizer', 'Admin')
-def event_create(request):
-    if request.method == 'POST':
-        print("FILES:", request.FILES) 
-        
-        form = EventForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Event created successfully.")
-            return redirect('event_list')
-    else:
-        form = EventForm()
-    return render(request, 'events/eventForm.html', {'form': form})
+class EventCreateView(LoginRequiredMixin, CreateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'events/eventForm.html'
+    success_url = reverse_lazy('event_list')
+    allowed_groups = ['Organizer', 'Admin']  
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Check if the user belongs to allowed groups.
+        Raises PermissionDenied if not.
+        """
+        if not request.user.groups.filter(name__in=self.allowed_groups).exists():
+            raise PermissionDenied("You do not have permission to create an event.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Add a success message after saving the event."""
+        response = super().form_valid(form)
+        messages.success(self.request, "Event created successfully.")
+        return response
 
 
-@login_required
-@group_required('Organizer', 'Admin')
-def event_update(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    if request.method == 'POST':
-        
-        form = EventForm(request.POST, request.FILES, instance=event)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Event updated successfully.")
-            return redirect('event_list')
-    else:
-        form = EventForm(instance=event)
-    return render(request, 'events/eventForm.html', {'form': form})
+class EventUpdateView(LoginRequiredMixin, UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'events/eventForm.html'
+    success_url = reverse_lazy('event_list')
+    allowed_groups = ['Organizer', 'Admin'] 
 
+   
+    def get_object(self, queryset=None):
+        event_id = self.kwargs.get('event_id')
+        return Event.objects.get(id=event_id)
 
-@login_required
-@group_required('Organizer', 'Admin')
-def event_delete(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    event.delete()
-    messages.success(request, "Event deleted successfully.")
-    return redirect('event_list')
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name__in=self.allowed_groups).exists():
+            raise PermissionDenied("You do not have permission to update this event.")
+        return super().dispatch(request, *args, **kwargs)
+
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, "Event updated successfully.")
+        return response
+
+class EventDeleteView(LoginRequiredMixin, DeleteView):
+    model = Event
+    success_url = reverse_lazy('event_list')
+    allowed_groups = ['Organizer', 'Admin']  
+    def get_object(self, queryset=None):
+        event_id = self.kwargs.get('event_id')
+        return Event.objects.get(id=event_id)
+
+   
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name__in=self.allowed_groups).exists():
+            raise PermissionDenied("You do not have permission to delete this event.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.success(request, "Event deleted successfully.")
+        return response
 
 
 # -----------------------
