@@ -19,6 +19,8 @@ from django.views.generic import CreateView,UpdateView, DeleteView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Event, Category
+from django.contrib.auth import update_session_auth_hash
+from .forms import UserUpdateForm, ProfileUpdateForm, CustomPasswordChangeForm
 from .forms import (
     EventForm,
     CategoryForm,
@@ -437,3 +439,45 @@ def change_role(request, user_id):
         'user': user,
         'groups': groups
     })
+
+@login_required
+def profile_view(request):
+    return render(request, 'accounts/profile.html')
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+
+    return render(request, 'accounts/edit_profile.html', {'u_form': u_form, 'p_form': p_form})
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user) 
+            messages.success(request, "Password changed successfully.")
+            return redirect('profile')
+    else:
+        form = CustomPasswordChangeForm(user=request.user)
+    return render(request, 'accounts/change_password.html', {'form': form})
+
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'accounts/password_reset.html'
+    email_template_name = 'accounts/password_reset_email.html'
+    subject_template_name = 'accounts/password_reset_subject.txt'
+    success_url = reverse_lazy('login')

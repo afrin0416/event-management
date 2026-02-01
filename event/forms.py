@@ -1,7 +1,8 @@
 from django import forms
-from .models import Event, Category
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User, Group, Permission
+from .models import Event, Category, Profile
+
 
 
 class StyledFormMixin:
@@ -12,29 +13,34 @@ class StyledFormMixin:
             field.widget.attrs.update({'class': self.default_classes})
 
 
+# ----------------------------
 # Event Form
+# ----------------------------
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = '__all__' 
+        fields = '__all__'
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'border rounded px-2 py-1 w-full'}),
-            'time': forms.TimeInput(attrs={'type': 'time', 'class': 'border rounded px-2 py-1 w-full'}),
-            'title': forms.TextInput(attrs={'class': 'border rounded px-2 py-1 w-full'}),
+            'start_time': forms.TimeInput(attrs={'type': 'time', 'class': 'border rounded px-2 py-1 w-full'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time', 'class': 'border rounded px-2 py-1 w-full'}),
+            'name': forms.TextInput(attrs={'class': 'border rounded px-2 py-1 w-full'}),
             'description': forms.Textarea(attrs={'class': 'border rounded px-2 py-1 w-full', 'rows': 4}),
-            
+            'location': forms.TextInput(attrs={'class': 'border rounded px-2 py-1 w-full'}),
             'image': forms.ClearableFileInput(attrs={'class': 'border rounded px-2 py-1 w-full'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-       
+        
         for field_name, field in self.fields.items():
             if not isinstance(field.widget, (forms.DateInput, forms.TimeInput, forms.ClearableFileInput)):
                 field.widget.attrs.update({'class': 'border rounded px-2 py-1 w-full'})
 
 
+# ----------------------------
 # Category Form
+# ----------------------------
 class CategoryForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Category
@@ -45,7 +51,9 @@ class CategoryForm(StyledFormMixin, forms.ModelForm):
         self.apply_styled_widgets()
 
 
+# ----------------------------
 # User Registration Form
+# ----------------------------
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
@@ -63,7 +71,31 @@ class CustomUserCreationForm(UserCreationForm):
         ]
 
 
+# ----------------------------
+# Profile Update Form
+# ----------------------------
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
 
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['phone_number', 'profile_pic']
+
+
+# ----------------------------
+# Password Change Form
+# ----------------------------
+class CustomPasswordChangeForm(PasswordChangeForm):
+    pass
+
+
+# ----------------------------
+# Group & Permission Form
+# ----------------------------
 class CreateGroupForm(StyledFormMixin, forms.ModelForm):
     permissions = forms.ModelMultipleChoiceField(
         queryset=Permission.objects.all(),
@@ -74,3 +106,7 @@ class CreateGroupForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Group
         fields = ['name', 'permissions']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.apply_styled_widgets()

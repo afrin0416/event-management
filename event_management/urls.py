@@ -61,6 +61,13 @@ urlpatterns = [
     # Email Activation
     # --------------------
     path('activate/<uidb64>/<token>/', views.activate_account, name='activate_account'),
+    # --------------------
+    # profile and password management
+    # --------------------
+    path('profile/', views.profile_view, name='profile'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/change-password/', views.change_password, name='change_password'),
+    path('password-reset/', views.CustomPasswordResetView.as_view(),name='password_reset'),
      path('', RedirectView.as_view(pattern_name='event_list', permanent=False)),
 ]
 if settings.DEBUG:

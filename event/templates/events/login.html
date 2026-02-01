@@ -8,25 +8,39 @@
     <div class="w-full max-w-md bg-white p-8 rounded shadow-md">
         <h2 class="text-3xl font-bold mb-6 text-blue-700 text-center">Login to Your Account</h2>
 
-        <form method="POST" class="space-y-4">
+        <!-- Display Django messages -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="px-4 py-2 rounded mb-2
+                                {% if message.tags == 'error' %}bg-red-500 text-white
+                                {% elif message.tags == 'success' %}bg-green-500 text-white
+                                {% else %}bg-gray-500 text-white{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" class="space-y-4" action="{% url 'login' %}">
             {% csrf_token %}
 
             <div>
-                <label class="block text-gray-700">Username or Email</label>
+                <label class="block text-gray-700 font-medium">Username</label>
                 <input type="text" name="username"
                     class="border border-gray-300 rounded px-3 py-2 w-full bg-yellow-100 text-blue-700"
                     value="{{ form.username.value|default:'' }}">
                 {% if form.username.errors %}
-                <p class="text-red-500 text-sm">{{ form.username.errors.0 }}</p>
+                    <p class="text-red-500 text-sm">{{ form.username.errors.0 }}</p>
                 {% endif %}
             </div>
 
             <div>
-                <label class="block text-gray-700">Password</label>
+                <label class="block text-gray-700 font-medium">Password</label>
                 <input type="password" name="password"
                     class="border border-gray-300 rounded px-3 py-2 w-full bg-white text-gray-900">
                 {% if form.password.errors %}
-                <p class="text-red-500 text-sm">{{ form.password.errors.0 }}</p>
+                    <p class="text-red-500 text-sm">{{ form.password.errors.0 }}</p>
                 {% endif %}
             </div>
 
@@ -36,7 +50,8 @@
         </form>
 
         <p class="mt-4 text-center text-gray-600">
-            Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign Up</a>
+            Don't have an account? 
+            <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign Up</a>
         </p>
     </div>
 </div>
