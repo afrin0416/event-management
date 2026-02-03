@@ -13,13 +13,16 @@ def group_required(*group_names):
         return user.is_authenticated and user.groups.filter(name__in=group_names).exists()
     return user_passes_test(in_groups)
 
-# Specific role decorators
+
+
 def admin_only(view_func):
     """
-    Allows access only to users in Admin group.
+    Allows access only to users in Admin group or superusers.
     """
-    decorator = user_passes_test(lambda u: u.is_authenticated and u.groups.filter(name='Admin').exists())
-    return decorator(view_func)
+    def check(user):
+        return user.is_authenticated and (user.is_superuser or user.groups.filter(name='Admin').exists())
+    return user_passes_test(check)(view_func)
+
 
 def organizer_only(view_func):
     """

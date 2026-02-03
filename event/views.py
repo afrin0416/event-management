@@ -2,32 +2,41 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.utils import timezone
-from django.contrib.auth import login, logout
+
+from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 from django.contrib import messages
+
 from django.core.mail import send_mail
 from django.conf import settings
+
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
+
 from django.urls import reverse_lazy
 from django.core.exceptions import PermissionDenied
-from django.views.generic import CreateView,UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Event, Category
 from django.contrib.auth import update_session_auth_hash
-from .forms import UserUpdateForm, ProfileUpdateForm, CustomPasswordChangeForm
+
+from .models import Event, Category
 from .forms import (
+    UserUpdateForm,
+    ProfileUpdateForm,
+    CustomPasswordChangeForm,
     EventForm,
     CategoryForm,
     CustomUserCreationForm,
     CreateGroupForm
 )
 from .decorators import group_required, admin_only
+
+User = get_user_model()
 
 # -----------------------
 # Participant Views
