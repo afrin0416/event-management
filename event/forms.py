@@ -1,7 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User, Group, Permission
-from .models import Event, Category, Profile
+from .models import Event, Category, CustomUser
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 
 
 
@@ -74,16 +77,14 @@ class CustomUserCreationForm(UserCreationForm):
 # ----------------------------
 # Profile Update Form
 # ----------------------------
+
+
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email']
+        fields = ('username', 'email', 'phone_number', 'profile_pic', 'first_name', 'last_name')
 
 
-class ProfileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['phone_number', 'profile_pic']
 
 
 # ----------------------------
@@ -110,3 +111,17 @@ class CreateGroupForm(StyledFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.apply_styled_widgets()
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['profile_pic', 'phone_number']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Tailwind styling
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                'class': 'border-2 border-gray-300 w-full p-3 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 focus:ring-rose-500'
+            })

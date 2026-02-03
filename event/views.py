@@ -180,9 +180,9 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
     allowed_groups = ['Organizer', 'Admin'] 
 
    
-    def get_object(self, queryset=None):
+    def get_object_or_404(self, queryset=None):
         event_id = self.kwargs.get('event_id')
-        return Event.objects.get(id=event_id)
+        return get_object_or_404(Event, id=event_id)
 
     
     def dispatch(self, request, *args, **kwargs):
@@ -200,9 +200,9 @@ class EventDeleteView(LoginRequiredMixin, DeleteView):
     model = Event
     success_url = reverse_lazy('event_list')
     allowed_groups = ['Organizer', 'Admin']  
-    def get_object(self, queryset=None):
+    def get_object_or_404(self, queryset=None):
         event_id = self.kwargs.get('event_id')
-        return Event.objects.get(id=event_id)
+        return get_object_or_404(Event, id=event_id)
 
    
     def dispatch(self, request, *args, **kwargs):
@@ -301,29 +301,14 @@ def signup_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False
+            user.is_active = True
             user.save()
 
             participant_group = Group.objects.get(name='Participant')
             user.groups.add(participant_group)
 
             
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            activation_link = request.build_absolute_uri(
-                f'/activate/{uid}/{token}/'
-            )
-            message = render_to_string('events/activation_email.html', {
-                'user': user,
-                'activation_link': activation_link
-            })
-            send_mail(
-                subject='Activate Your Account',
-                message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=True
-            )
+            
 
             messages.success(request, "Account created! Check your email to activate your account.")
             return redirect('login')
@@ -442,23 +427,21 @@ def change_role(request, user_id):
 
 @login_required
 def profile_view(request):
-    return render(request, 'accounts/profile.html')
+    return render(request, 'events/profile.html')
 
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-        if u_form.is_valid() and p_form.is_valid():
+        u_form = UserUpdateForm(request.POST, request.FILES, instance=request.user)
+        if u_form.is_valid():
             u_form.save()
-            p_form.save()
             messages.success(request, "Profile updated successfully.")
             return redirect('profile')
     else:
         u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm(instance=request.user.profile)
 
-    return render(request, 'accounts/edit_profile.html', {'u_form': u_form, 'p_form': p_form})
+    return render(request, 'events/edit_profile.html', {'u_form': u_form})
+
 
 @login_required
 def change_password(request):
@@ -471,13 +454,13 @@ def change_password(request):
             return redirect('profile')
     else:
         form = CustomPasswordChangeForm(user=request.user)
-    return render(request, 'accounts/change_password.html', {'form': form})
+    return render(request, 'events/change_password.html', {'form': form})
 
 from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 
 class CustomPasswordResetView(PasswordResetView):
-    template_name = 'accounts/password_reset.html'
-    email_template_name = 'accounts/password_reset_email.html'
-    subject_template_name = 'accounts/password_reset_subject.txt'
+    template_name = 'events/password_reset.html'
+    email_template_name = 'events/password_reset_email.html'
+    subject_template_name = 'events/password_reset_subject.txt'
     success_url = reverse_lazy('login')
