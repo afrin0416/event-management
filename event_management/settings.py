@@ -206,6 +206,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 import dj_database_url
 
@@ -270,7 +271,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
 
 ]
 
@@ -329,13 +330,13 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# -----------------------
+
+
 # Default primary key field type
 # -----------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -351,4 +352,5 @@ LOGIN_URL = 'login'
 # Email Backend (console for dev)
 # -----------------------
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@example.com' 
+DEFAULT_FROM_EMAIL = 'noreply@example.com'
+AUTH_USER_MODEL = 'event.CustomUser'
