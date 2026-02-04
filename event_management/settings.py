@@ -206,6 +206,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+# import os
+# from pathlib import Path
+# import dj_database_url
+
+# # -----------------------
+# # BASE DIR
+# # -----------------------
+# BASE_DIR = Path(__file__).resolve().parent.parent
 import os
 from pathlib import Path
 import dj_database_url
@@ -330,10 +338,16 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Media files
+
+MEDIA_ROOT = BASE_DIR / 'media'
+    
+STATIC_ROOT = BASE_DIR / 'staticfiles'        # collectstatic destination
+
 
 
 
