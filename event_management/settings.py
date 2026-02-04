@@ -87,7 +87,8 @@ DATABASES = {
     # )
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgres://postgres:toor@127.0.0.1:5432/event-management',
+        # default='postgres://postgres:toor@127.0.0.1:5432/event-management',
+        default='postgresql://event_management_db_r6v6_user:ysgXOmFvA9GC1nEkKLmIvgHJoXgPmh49@dpg-d61p0a0gjchc73fovc9g-a.oregon-postgres.render.com/event_management_db_r6v6',
         conn_max_age=600
     )
 }
@@ -135,7 +136,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 
 # Default primary key field type
