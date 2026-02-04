@@ -2,20 +2,33 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.utils import timezone
-from django.contrib.auth import login, logout
+
+from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 from django.contrib import messages
+
 from django.core.mail import send_mail
 from django.conf import settings
+
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 
+from django.urls import reverse_lazy
+from django.core.exceptions import PermissionDenied
+from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import update_session_auth_hash
+
 from .models import Event, Category
 from .forms import (
+    UserUpdateForm,
+    ProfileUpdateForm,
+    CustomPasswordChangeForm,
     EventForm,
     CategoryForm,
     CustomUserCreationForm,
@@ -23,90 +36,88 @@ from .forms import (
 )
 from .decorators import group_required, admin_only
 
+User = get_user_model()
+
 # -----------------------
 # Participant Views
-# -----------------------
+# ----------------------
+class EventListView(View):
+    template_name = 'events/eventList.html'
 
-def event_list(request):
-    
-    search_query = request.GET.get('q', '')
-    category_id = request.GET.get('category')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    def get(self, request):
+        search_query = request.GET.get('q', '')
+        category_id = request.GET.get('category')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
 
-    
-    events = Event.objects.select_related('category')
-
-    
-    if search_query:
-        events = events.filter(
-            Q(name__icontains=search_query) |
-            Q(location__icontains=search_query)
-        )
+        events = Event.objects.select_related('category')
 
     
-    if category_id:
-        events = events.filter(category_id=category_id)
+        if search_query:
+            events = events.filter(
+                Q(name__icontains=search_query) |
+                Q(location__icontains=search_query)
+            )
 
-    
-    if start_date:
-        events = events.filter(date__gte=parse_date(start_date))
-
-    if end_date:
-        events = events.filter(date__lte=parse_date(end_date))
-
-    
-    categories = Category.objects.all()
-    category_selected = request.GET.get('category')
-    for cat in categories:
-        cat.is_selected = str(cat.id) == category_selected
-
-    
-    can_create_event = False
-    user = request.user
-    if user.is_authenticated:
-        if user.groups.filter(name__in=['Organizer', 'Admin']).exists():
-            can_create_event = True
-
-    
-    context = {
-        'events': events,
-        'categories': categories,
-        'can_create_event': can_create_event,
-        'search_query': search_query,
-        'start_date': start_date,
-        'end_date': end_date,
-    }
-
-    return render(request, 'events/eventList.html', context)
-
-
-def event_detail(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    
-    user = request.user
-    is_participant = False
-    has_rsvped = False
-    can_update = False  
-
-    if user.is_authenticated:
         
-        is_participant = user.groups.filter(name='Participant').exists()
-        
-        
-        has_rsvped = user in event.rsvps.all()
-        
-        
-        can_update = user.groups.filter(name__in=['Organizer', 'Admin']).exists()
+        if category_id:
+            events = events.filter(category_id=category_id)
 
-    context = {
-        'event': event,
-        'is_participant': is_participant,
-        'has_rsvped': has_rsvped,
-        'can_update': can_update,  # <-- pass to template
-    }
-    
-    return render(request, 'events/eventDetail.html', context)
+        
+        if start_date:
+            events = events.filter(date__gte=parse_date(start_date))
+
+        if end_date:
+            events = events.filter(date__lte=parse_date(end_date))
+
+        
+        categories = Category.objects.all()
+        for cat in categories:
+            cat.is_selected = str(cat.id) == category_id
+
+        
+        can_create_event = False
+        user = request.user
+        if user.is_authenticated:
+            if user.groups.filter(name__in=['Organizer', 'Admin']).exists():
+                can_create_event = True
+
+        context = {
+            'events': events,
+            'categories': categories,
+            'can_create_event': can_create_event,
+            'search_query': search_query,
+            'start_date': start_date,
+            'end_date': end_date,
+        }
+
+        return render(request, self.template_name, context)
+
+
+class EventDetailView(View):
+    def get(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
+
+        user = request.user
+        is_participant = False
+        has_rsvped = False
+        can_update = False
+
+        if user.is_authenticated:
+            is_participant = user.groups.filter(name='Participant').exists()
+            has_rsvped = user in event.rsvps.all()
+            can_update = user.groups.filter(
+                name__in=['Organizer', 'Admin']
+            ).exists()
+
+        context = {
+            'event': event,
+            'is_participant': is_participant,
+            'has_rsvped': has_rsvped,
+            'can_update': can_update,
+        }
+
+        return render(request, 'events/eventDetail.html', context)
 
 
 @login_required
@@ -148,45 +159,70 @@ def participant_dashboard(request):
 # Event Management (Organizer + Admin)
 # -----------------------
 
-@login_required
-@group_required('Organizer', 'Admin')
-def event_create(request):
-    if request.method == 'POST':
-        print("FILES:", request.FILES) 
-        
-        form = EventForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Event created successfully.")
-            return redirect('event_list')
-    else:
-        form = EventForm()
-    return render(request, 'events/eventForm.html', {'form': form})
+class EventCreateView(LoginRequiredMixin, CreateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'events/eventForm.html'
+    success_url = reverse_lazy('event_list')
+    allowed_groups = ['Organizer', 'Admin']  
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Check if the user belongs to allowed groups.
+        Raises PermissionDenied if not.
+        """
+        if not request.user.groups.filter(name__in=self.allowed_groups).exists():
+            raise PermissionDenied("You do not have permission to create an event.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Add a success message after saving the event."""
+        response = super().form_valid(form)
+        messages.success(self.request, "Event created successfully.")
+        return response
 
 
-@login_required
-@group_required('Organizer', 'Admin')
-def event_update(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    if request.method == 'POST':
-        
-        form = EventForm(request.POST, request.FILES, instance=event)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Event updated successfully.")
-            return redirect('event_list')
-    else:
-        form = EventForm(instance=event)
-    return render(request, 'events/eventForm.html', {'form': form})
+class EventUpdateView(LoginRequiredMixin, UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'events/eventForm.html'
+    success_url = reverse_lazy('event_list')
+    allowed_groups = ['Organizer', 'Admin'] 
 
+   
+    def get_object_or_404(self, queryset=None):
+        event_id = self.kwargs.get('event_id')
+        return get_object_or_404(Event, id=event_id)
 
-@login_required
-@group_required('Organizer', 'Admin')
-def event_delete(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    event.delete()
-    messages.success(request, "Event deleted successfully.")
-    return redirect('event_list')
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name__in=self.allowed_groups).exists():
+            raise PermissionDenied("You do not have permission to update this event.")
+        return super().dispatch(request, *args, **kwargs)
+
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, "Event updated successfully.")
+        return response
+
+class EventDeleteView(LoginRequiredMixin, DeleteView):
+    model = Event
+    success_url = reverse_lazy('event_list')
+    allowed_groups = ['Organizer', 'Admin']  
+    def get_object_or_404(self, queryset=None):
+        event_id = self.kwargs.get('event_id')
+        return get_object_or_404(Event, id=event_id)
+
+   
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name__in=self.allowed_groups).exists():
+            raise PermissionDenied("You do not have permission to delete this event.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.success(request, "Event deleted successfully.")
+        return response
 
 
 # -----------------------
@@ -281,22 +317,7 @@ def signup_view(request):
             user.groups.add(participant_group)
 
             
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            activation_link = request.build_absolute_uri(
-                f'/activate/{uid}/{token}/'
-            )
-            message = render_to_string('events/activation_email.html', {
-                'user': user,
-                'activation_link': activation_link
-            })
-            send_mail(
-                subject='Activate Your Account',
-                message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=True
-            )
+            
 
             messages.success(request, "Account created! Check your email to activate your account.")
             return redirect('login')
@@ -412,3 +433,43 @@ def change_role(request, user_id):
         'user': user,
         'groups': groups
     })
+
+@login_required
+def profile_view(request):
+    return render(request, 'events/profile.html')
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, request.FILES, instance=request.user)
+        if u_form.is_valid():
+            u_form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+
+    return render(request, 'events/edit_profile.html', {'u_form': u_form})
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user) 
+            messages.success(request, "Password changed successfully.")
+            return redirect('profile')
+    else:
+        form = CustomPasswordChangeForm(user=request.user)
+    return render(request, 'events/change_password.html', {'form': form})
+
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'events/password_reset.html'
+    email_template_name = 'events/password_reset_email.html'
+    subject_template_name = 'events/password_reset_subject.txt'
+    success_url = reverse_lazy('login')

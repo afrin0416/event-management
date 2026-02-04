@@ -1,0 +1,41 @@
+{% extends 'events/base.html' %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">My Profile</h2>
+
+    <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
+        <!-- Profile Picture -->
+        <div>
+            {% if user.profile_pic %}
+                <img src="{{ user.profile_pic.url }}" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
+            {% else %}
+                <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xl font-bold border-2 border-gray-300">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- User Info -->
+        <div class="flex-1 space-y-2">
+            <p><span class="font-semibold text-gray-700">Username:</span> {{ user.username }}</p>
+            <p><span class="font-semibold text-gray-700">First Name:</span> {{ user.first_name }}</p>
+            <p><span class="font-semibold text-gray-700">Last Name:</span> {{ user.last_name }}</p>
+            <p><span class="font-semibold text-gray-700">Email:</span> {{ user.email }}</p>
+            <p><span class="font-semibold text-gray-700">Phone:</span> {{ user.phone_number|default:"Not Provided" }}</p>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex space-x-4">
+        <a href="{% url 'edit_profile' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+            Edit Profile
+        </a>
+        <a href="{% url 'change_password' %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition">
+            Change Password
+        </a>
+    </div>
+</div>
+{% endblock %}
