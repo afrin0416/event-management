@@ -27,7 +27,6 @@
 # # DEBUG = True
 
 
-
 # ALLOWED_HOSTS = os.getenv(
 #     "ALLOWED_HOSTS",
 #     "event-management-1-73av.onrender.com,localhost,127.0.0.1"
@@ -77,7 +76,6 @@
 # # ]
 
 
-
 # MIDDLEWARE = [
 #     'django.middleware.security.SecurityMiddleware',
 #     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -116,7 +114,7 @@
 
 # #
 # DATABASES = {
-    
+
 #     'default': dj_database_url.config(
 #         # Replace this value with your local database's connection string.
 #         default='postgresql://event_management_25ki_user:jWihHclQv9S1dSTJEw8OfMWUCZUGQXMX@dpg-d5fv7pn5r7bs73des2r0-a.oregon-postgres.render.com/event_management_25ki',
@@ -170,7 +168,6 @@
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -191,7 +188,6 @@
 
 # SESSION_COOKIE_SAMESITE = 'None'
 # CSRF_COOKIE_SAMESITE = 'None'
-
 
 
 """
@@ -239,7 +235,6 @@ ALLOWED_HOSTS = os.getenv(
 # CSRF & SESSION Cookies
 # -----------------------
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
 
 
 if DEBUG:
@@ -307,7 +302,8 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 # -----------------------
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://event_management_25ki_user:jWihHclQv9S1dSTJEw8OfMWUCZUGQXMX@dpg-d5fv7pn5r7bs73des2r0-a.oregon-postgres.render.com/event_management_25ki',
+        # Replace this value with your local database's connection string.
+        default='postgres://postgres:toor@127.0.0.1:5432/event-management',
         conn_max_age=600
     )
 }
@@ -316,10 +312,10 @@ DATABASES = {
 # Password Validators
 # -----------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
 
 # -----------------------
@@ -341,14 +337,7 @@ STATICFILES_DIRS = [
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# Media files
-
-MEDIA_ROOT = BASE_DIR / 'media'
-    
-STATIC_ROOT = BASE_DIR / 'staticfiles'        # collectstatic destination
-
-
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Default primary key field type
