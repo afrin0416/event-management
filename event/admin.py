@@ -6,11 +6,19 @@ from .models import CustomUser, Category, Event
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ('username', 'email', 'first_name', 'last_name', 'phone_number', 'is_staff')
-    fieldsets = UserAdmin.fieldsets + (
-        ('Extra Info', {'fields': ('phone_number', 'profile_pic')}),
+
+    list_display = (
+        'username', 'email', 'first_name',
+        'last_name', 'phone_number', 'is_staff'
     )
 
+    fieldsets = UserAdmin.fieldsets + (
+        ('Extra Info', {
+            'fields': ('phone_number', 'profile_pic')
+        }),
+    )
+
+    filter_horizontal = ('groups', 'user_permissions')
 # Category
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
